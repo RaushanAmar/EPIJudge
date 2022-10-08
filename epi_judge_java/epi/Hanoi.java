@@ -4,19 +4,40 @@ import epi.test_framework.GenericTest;
 import epi.test_framework.TestFailure;
 import epi.test_framework.TimedExecutor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 public class Hanoi {
 
   private static final int NUM_PEGS = 3;
 
   public static List<List<Integer>> computeTowerHanoi(int numRings) {
-    // TODO - you fill in here.
-    return Collections.emptyList();
+    List<ArrayDeque<Integer>> pegs = IntStream.range(0, NUM_PEGS)
+            .mapToObj(i -> new ArrayDeque<Integer>()).toList();
+
+    IntStream.range(1,  numRings + 1).forEach(i -> pegs.get(0).addFirst(i));
+
+    System.out.println(pegs);
+
+    List<List<Integer>> result = new ArrayList<>();
+    compute(numRings, pegs, 0, 2, 1, result);
+
+    return result;
   }
+
+  public static void compute(int n, List<ArrayDeque<Integer>> pegs, int from, int to, int using, List<List<Integer>> result) {
+    if (n == 0) {
+      return;
+    }
+
+    compute(n - 1, pegs, from, using, to, result);
+    pegs.get(to).addFirst(pegs.get(from).removeFirst());
+    result.add(List.of(from, to));
+    compute(n - 1, pegs, using, to, from, result);
+  }
+
+
   @EpiTest(testDataFile = "hanoi.tsv")
   public static void computeTowerHanoiWrapper(TimedExecutor executor,
                                               int numRings) throws Exception {
